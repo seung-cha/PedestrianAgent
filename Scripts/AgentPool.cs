@@ -10,6 +10,7 @@ namespace PedestrianAgent
      * Per-scene based singleton instance.
      * Call Init() to explicitly load the pool with pedestrian game objects.
      * Assumes an instant will persist throughout the scene once Init() is called in that scene.
+     * This should be loaded dynamically.
      */
         public static AgentPool Pool
         {
@@ -34,15 +35,12 @@ namespace PedestrianAgent
 
         List<GameObject> objectVariation = new List<GameObject>();
         Queue<PedestrianAgent> poolQueue = new Queue<PedestrianAgent>();
+        GameObject parent;
 
-        public void Init(List<GameObject> objects)
+
+        void InstantiateAgents()
         {
-            GameObject parent = new GameObject("pool objects");
-            parent.transform.parent = this.gameObject.transform;
-
-            objectVariation = new List<GameObject>(objects);
-            
-            for(int i = 0; i < 50; i++)
+            for (int i = 0; i < 50; i++)
             {
                 // Construct agent.
                 // Agent (empty gameobject)
@@ -58,17 +56,37 @@ namespace PedestrianAgent
                 agent.gameObject.SetActive(false);
                 poolQueue.Enqueue(agent);
             }
+        }
 
+
+        public void Init(List<GameObject> objects)
+        {
+            parent = new GameObject("pool objects");
+            parent.transform.parent = this.gameObject.transform;
+
+            objectVariation = new List<GameObject>(objects);
+
+            InstantiateAgents();
         }
 
 
         public PedestrianAgent GetAgent()
         {
+            if(poolQueue.Count == 0)
+            {
+                InstantiateAgents();
+            }
+
             PedestrianAgent agent = poolQueue.Dequeue();
             agent.gameObject.SetActive(true);
             return agent;
         }
 
+        public void ReturnAgent(PedestrianAgent agent)
+        {
+            poolQueue.Enqueue(agent);
+            agent.gameObject.SetActive(false);
+        }
 
         // Start is called before the first frame update
         void Start()

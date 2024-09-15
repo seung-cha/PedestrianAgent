@@ -10,14 +10,31 @@ namespace PedestrianAgent
         float spawnRadius;
 
         [SerializeField]
-        List<GameObject> prefabs = new List<GameObject>(); 
+        float removeDistance = 100.0f;
+
+        [SerializeField]
+        List<GameObject> prefabs = new List<GameObject>();
+
+        [SerializeField]
+        Camera cam;
 
         // Start is called before the first frame update
         void Start()
         {
             AgentPool.Pool.Init(prefabs);
-
             StartCoroutine(SpawnPedestrians());
+
+            if(!cam)
+            {
+                Debug.LogWarning("Main camera not specified, using the main camera as the active camera.", this);
+                cam = Camera.main;
+
+                if(!cam)
+                {
+                    Debug.LogError("Could not assign the main camera. Make sure to assign camera manually.", this);
+                }
+            }
+
         }
 
         // Update is called once per frame
@@ -28,6 +45,7 @@ namespace PedestrianAgent
 
         IEnumerator SpawnPedestrians()
         {
+            yield return new WaitForEndOfFrame();
             while(true)
             {
                 List<Collider> colliders = new List<Collider>(Physics.OverlapSphere(this.transform.position, spawnRadius));
@@ -39,11 +57,18 @@ namespace PedestrianAgent
                     AgentNetworkNode node;
                     if(node = collider.GetComponent<AgentNetworkNode>())
                     {
-                        if(Random.value <= 0.5f)
+                        if(Random.value <= 0.8f)
                         {
-                            PedestrianAgent agent = AgentPool.Pool.GetAgent();
-                            agent.currentNode = node;
-                            agent.transform.position = collider.transform.position;
+                            Vector3 vpPos = this.cam.WorldToViewportPoint(node.transform.position);
+
+                            if (vpPos.x > 1.0f || vpPos.x < 0.0f || vpPos.y > 1.0f || vpPos.y < 0.0f)
+                            {
+                                PedestrianAgent agent = AgentPool.Pool.GetAgent();
+                                agent.removeDistance = removeDistance;
+                                agent.cam = cam;
+                                agent.currentNode = node;
+                                agent.transform.position = collider.transform.position;
+                            }
                         }
                     }
                 }
@@ -51,7 +76,7 @@ namespace PedestrianAgent
 
 
 
-                yield return new WaitForSeconds(8.0f);
+                yield return new WaitForSeconds(2.0f);
             }
 
         }

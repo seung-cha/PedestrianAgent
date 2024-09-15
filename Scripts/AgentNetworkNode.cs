@@ -16,6 +16,8 @@ namespace PedestrianAgent
 
         public List<AgentNetworkNode> AdjacentNodes { get => adjacentNodes; }
 
+        public float lateralLeft, lateralRight;
+
         private void Start()
         {
             // Add a collider so that it can be queried by raycast.
@@ -29,19 +31,22 @@ namespace PedestrianAgent
          * Get a node visitable from this node.
          * 
          */
-        public void GetRandomVisitableNode(AgentNetworkNode ancestor, List<AgentNetworkNode> arr)
+        public void GetRandomVisitableNode(AgentNetworkNode ancestor, List<AgentNetworkNode> arr, bool first = false)
         {
             arr.Add(this);
-            int a = Random.Range(0, 10);
+            int a = Random.Range(0, 20);
             // Select this node by 1/10 chance
-            if(a  == 0 || adjacentNodes.Count == 0)
+            if(a == 0 && !first)
             {
                 return;
             }
             else
             {
+                if (adjacentNodes.Count == 0) return;
+
                 int index = 0;
 
+                // Try to get a random point, skip if the agent will move backwards.
                 for(int i = 0; i < 100; i++)
                 {
                     index = Random.Range(0, adjacentNodes.Count);
@@ -66,12 +71,13 @@ namespace PedestrianAgent
         {
             Gizmos.color = Color.blue;
             Gizmos.DrawWireSphere(this.transform.position, 1.0f);
+           
 
 
             // Draw arrow to adjacent nodes
-            Gizmos.color = Color.green;
             foreach (var node in adjacentNodes)
             {
+                Gizmos.color = Color.green;
                 var dir = this.transform.position - node.transform.position;
                 dir.Normalize();
 
