@@ -41,7 +41,7 @@ namespace PedestrianAgent
 
             // Highly unlikely that there will be only one node returned.
             // If there is only one node, don't make the agent move.
-            currentNode.GetRandomVisitableNode(null, path, first: true);
+            path = AgentNetworkGraph.Network.GetRandomForwardPath(currentNode);
 
             if(path.Count == 1)
             {
@@ -75,31 +75,43 @@ namespace PedestrianAgent
             if(move)
             {
                 transform.Translate(Vector3.forward * Time.deltaTime * speed, Space.Self);
+            }
+
+            if(index == path.Count - 1 && Vector3.Distance(transform.position, nextNode.transform.position) <= tolDist)
+            {
+                move = false;
+                animator.SetFloat("Walk", 0.0f);
+            }
+            else
+            {
 
                 if(Vector3.Distance(transform.position, nextNode.transform.position) <= tolDist)
                 {            
-               
-                    currentNode = nextNode;
-
-                    if(index + 1 < path.Count)
+                    if(nextNode.NodeActive)
                     {
-                        nextNode = path[++index];
+                        move = true;
+                        animator.SetFloat("Walk", 1.0f);
 
-                        Vector3 fwd = nextNode.transform.position - currentNode.transform.position;
-                        this.transform.forward = fwd;
+                        currentNode = nextNode;
+
+                        if(index + 1 < path.Count)
+                        {
+                            nextNode = path[++index];
+
+                            Vector3 fwd = nextNode.transform.position - currentNode.transform.position;
+                            this.transform.forward = fwd;
+                        }
+      
                     }
                     else
                     {
                         move = false;
                         animator.SetFloat("Walk", 0.0f);
                     }
-
-
-
                 }
             }
-
         }
+
     }
 
 }

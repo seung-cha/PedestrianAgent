@@ -52,8 +52,6 @@ namespace PedestrianAgent
 
                 foreach(var collider in colliders)
                 {
-                    Debug.Log(collider.name);
-
                     AgentNetworkNode node;
                     if(node = collider.GetComponent<AgentNetworkNode>())
                     {
