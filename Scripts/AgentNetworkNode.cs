@@ -17,6 +17,7 @@ namespace PedestrianAgent
         public List<AgentNetworkNode> AdjacentNodes { get => adjacentNodes; }
 
         public bool NodeActive = true;
+        public float SpawnWidth = 1.0f;
 
         private void Start()
         {
@@ -32,7 +33,7 @@ namespace PedestrianAgent
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.blue;
-            Gizmos.DrawWireSphere(this.transform.position, 1.0f);
+            Gizmos.DrawWireSphere(this.transform.position, SpawnWidth);
            
 
 

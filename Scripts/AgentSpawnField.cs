@@ -65,7 +65,8 @@ namespace PedestrianAgent
                                 agent.removeDistance = removeDistance;
                                 agent.cam = cam;
                                 agent.currentNode = node;
-                                agent.transform.position = collider.transform.position;
+                                Vector2 r = Random.insideUnitCircle;
+                                agent.transform.position = collider.transform.position + new Vector3(r.x, 0.0f, r.y) * node.SpawnWidth;
                             }
                         }
                     }
